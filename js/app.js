@@ -4,7 +4,10 @@ const rightBorder = 400;
 const upBorder = 50;
 const downBorder = 390;
 const bugSpeeds = [200, 300, 400];
-var Enemy = function(y, speed) {
+const waterTile = -35;
+'use strict;'
+
+var Enemy = function(y) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
 
@@ -13,7 +16,7 @@ var Enemy = function(y, speed) {
     this.x = -100;  // ([-100], 0, 100, 200, 300, 400, [500])
     this.y = y; // (50, 135, 220, 305, 390)
     this.sprite = 'images/enemy-bug.png';
-    this.speed = speed; // 200, 300, 400, 500
+    this.speed = bugSpeeds [ Math.round( Math.random() * 2 ) ]; // 200, 300, 400, 500
 };
 
 // Update the enemy's position, required method for game
@@ -28,11 +31,10 @@ Enemy.prototype.update = function(dt) {
     // all computers.
 };
 
+// Respawns the bug after it reaches a certan x-value.
 Enemy.prototype.respawn = function() {
     this.x = -50;
     this.speed = bugSpeeds [ Math.round( Math.random() * 2 ) ];
-
-
 };
 
 // Draw the enemy on the screen, required method for game
@@ -46,21 +48,13 @@ Enemy.prototype.render = function() {
 
 class Player {
   constructor() {
-    this.name = "Pepe";
     this.x = 200;
     this.y = 390;
     this.sprite = 'images/char-boy.png';
   }
 
-  // updateX( mov = 0 ) {
-  //   this.x += mov;
-  // };
-  //
-  // updateY( mov = 0 ) {
-  //   this.y += mov;
-  //
-  // };
-
+// Updates movement for the player.
+// Returns this.y to an if inside engine.js to validate if you player has reached the water tile.
   update( movX = 0, movY = 0) {
     this.x += movX;
     this.y += movY
@@ -70,12 +64,15 @@ class Player {
 
   checkCollision() {
     allEnemies.forEach(function(enemy){
+      // Validates if the enemy and player have the same Y-value.
       if (enemy.y === player.y) {
+        // If the enemy is to the left of the player and the distance is < 50, the player dies.
         if (enemy.x <= player.x && (player.x - enemy.x) < 50) {
           setTimeout( function() {
             player.death();
           }, 50);
         }
+        // If the enemy is to the right of the player and the distance is < 50, the player dies.
         else if (enemy.x > player.x && (enemy.x - player.x) < 50) {
           setTimeout(function() {
             player.death();
@@ -85,6 +82,8 @@ class Player {
     });
   }
 
+// death() and startPos() behave the same, they have to be different Methods
+// when adding additional features in the future.
   death() {
     this.x = 200;
     this.y = 390;
@@ -100,6 +99,7 @@ class Player {
     // console.log(Resources.get(this.sprite))
   };
 
+  // Before updating the position, this method validates if the playes is next to a border.
   handleInput(keypress) {
     if (keypress === 'left' && this.x > leftBorder) {
       // this.x -= 100;
@@ -124,14 +124,15 @@ class Player {
   };
 }
 
+// The parameters are hard-coded, those are the y-values.
+let bug = new Enemy(50);
+let bug2 = new Enemy(220);
+let bug3 = new Enemy(135);
+let allEnemies = [bug, bug2, bug3];
+// allEnemies.push(bug);
+// allEnemies.push(bug2);
+// allEnemies.push(bug3);
 
-let bug = new Enemy(50, 300);
-let bug2 = new Enemy(220, 200);
-let bug3 = new Enemy(135, 100);
-let allEnemies = []
-allEnemies.push(bug);
-allEnemies.push(bug2);
-allEnemies.push(bug3);
 
 let player = new Player();
 // Now instantiate your objects.

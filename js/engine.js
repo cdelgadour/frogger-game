@@ -13,11 +13,14 @@
  * writing app.js a little simpler to work with.
  */
 
+
+
 var Engine = (function(global) {
     /* Predefine the variables we'll be using within this scope,
      * create the canvas element, grab the 2D context for that canvas
      * set the canvas elements height/width and add it to the DOM.
      */
+
     var doc = global.document,
         win = global.window,
         canvas = doc.createElement('canvas'),
@@ -94,14 +97,12 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
 
-        // Have to comment this
-        if( player.update() === -35) {
+        // This validates if the player has reached the waterTile. If true, calls startPos();
+        if( player.update() === waterTile) {
           setTimeout( function() {
             player.startPos();
           }, 100);
         }
-        // player.updateX();
-        // player.updateY();
     }
 
 
