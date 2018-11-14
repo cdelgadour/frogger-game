@@ -1,148 +1,160 @@
-// Enemies our player must avoid
 const leftBorder = 0;
 const rightBorder = 400;
 const upBorder = 50;
 const downBorder = 390;
-const bugSpeeds = [200, 300, 400];
+const bugSpeeds = [200, 300, 400, 500];
 const waterTile = -35;
-'use strict;'
 
-var Enemy = function(y) {
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
+/*TODO: Add Html for number of wins, name of the game, points
+TODO: Implement gems and points
+TODO: Implement character choosing
+TODO: Add extra tile for enemies
+TODO: Check other files for cleaning
+* */
 
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
-    this.x = -100;  // ([-100], 0, 100, 200, 300, 400, [500])
-    this.y = y; // (50, 135, 220, 305, 390)
-    this.sprite = 'images/enemy-bug.png';
-    this.speed = bugSpeeds [ Math.round( Math.random() * 2 ) ]; // 200, 300, 400, 500
-};
-
-// Update the enemy's position, required method for game
-// Parameter: dt, a time delta between ticks
-Enemy.prototype.update = function(dt) {
-  this.x += this.speed * dt;
-  if (this.x > 550) {
-    this.respawn();
-  };
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
-};
-
-// Respawns the bug after it reaches a certan x-value.
-Enemy.prototype.respawn = function() {
-    this.x = -50;
-    this.speed = bugSpeeds [ Math.round( Math.random() * 2 ) ];
-};
-
-// Draw the enemy on the screen, required method for game
-Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
-
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
-
-class Player {
-  constructor() {
-    this.x = 200;
-    this.y = 390;
-    this.sprite = 'images/char-boy.png';
+class Entity {
+  constructor(x = 0, y = 0, sprite = null) {
+    this.x = x;
+    this.y = y;
+    this.sprite = sprite;
   }
 
-// Updates movement for the player.
-// Returns this.y to an if inside engine.js to validate if you player has reached the water tile.
+  render() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+  }
+}
+
+class Enemy extends Entity {
+  constructor(x, y, sprite = "images/enemy-bug.png") {
+    super(x, y, sprite);
+    this.speed = bugSpeeds [ Math.round( Math.random() * (bugSpeeds.length - 1) ) ];
+  }
+
+  updatePosition(frameSpeed) {
+    this.x += this.speed * frameSpeed;
+    this.checkCollision();
+
+    let enemyBorder = 550;
+    if (this.x > enemyBorder) {
+      this.respawn();
+    }
+  }
+  checkCollision() {
+      let [player_xPos, player_yPos] = player.playerCoordinates();
+      let deathInterval = 60;
+      if (this.y === player_yPos) {
+         // If the enemy is to the left of the player and the distance is < 50, the player dies.
+         if (this.x <= player_xPos && (player_xPos - this.x) < deathInterval) {
+           setTimeout( function() {
+             player.death();
+           }, 25);
+         }
+         // If the enemy is to the right of the player and the distance is < 50, the player dies.
+         else if (this.x > player_xPos && (this.x - player_yPos) < deathInterval) {
+           setTimeout(function() {
+             player.death();
+           }, 25);
+         }
+      }
+    }
+
+    respawn() {
+      this.x = -50;
+      this.speed = bugSpeeds [ Math.round( Math.random() * (bugSpeeds.length - 1) ) ];
+    }
+
+}
+
+class Player extends Entity {
+  constructor(x = 200, y = 390, sprite = "images/char-boy.png", ) {
+    super(x, y, sprite);
+    this.winCount = 0;
+    this.points = 0;
+  }
+
   update( movX = 0, movY = 0) {
     this.x += movX;
-    this.y += movY
-    this.checkCollision();
+    this.y += movY;
     return this.y;
 };
 
-  checkCollision() {
-    allEnemies.forEach(function(enemy){
-      // Validates if the enemy and player have the same Y-value.
-      if (enemy.y === player.y) {
-        // If the enemy is to the left of the player and the distance is < 50, the player dies.
-        if (enemy.x <= player.x && (player.x - enemy.x) < 50) {
-          setTimeout( function() {
-            player.death();
-          }, 50);
-        }
-        // If the enemy is to the right of the player and the distance is < 50, the player dies.
-        else if (enemy.x > player.x && (enemy.x - player.x) < 50) {
-          setTimeout(function() {
-            player.death();
-          }, 50);
-        }
-      }
-    });
-  }
-
-// death() and startPos() behave the same, they have to be different Methods
-// when adding additional features in the future.
   death() {
     this.x = 200;
     this.y = 390;
   };
 
   startPos() {
-    this.x = 200;
-    this.y = 390;
+      let self = this;
+      setTimeout(function(){
+        self.x = 200;
+        self.y = 390;
+        self.updateWinCount();
+    }, 10);
   };
 
-  render() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-    // console.log(Resources.get(this.sprite))
-  };
-
-  // Before updating the position, this method validates if the playes is next to a border.
   handleInput(keypress) {
     if (keypress === 'left' && this.x > leftBorder) {
-      // this.x -= 100;
-      // this.updateX(-100);
       this.update(-100);
-    };
+    }
     if (keypress === 'right' && this.x < rightBorder) {
-      // this.x += 100;
-      // this.updateX(100);
       this.update(100);
-    };
+    }
     if (keypress === 'up' && this.y >= upBorder) {
-      // this.y -= 85;
-      // this.updateY(-85);
       this.update(0,-85);
-    };
+    }
     if (keypress === 'down' && this.y < downBorder) {
-      // this.y += 85;
-      // this.updateY(85);
       this.update(0,85);
-    };
+    }
   };
+
+  playerCoordinates(){
+      return [this.x, this.y];
+  };
+
+  updateWinCount() {
+      this.winCount += 1;
+      gameStats.updateWin(player.winCount);
+      this.updatePoints();
+  }
+
+  updatePoints() {
+      this.points += 10;
+      gameStats.updatePointsView(this.points);
+  }
 }
 
-// The parameters are hard-coded, those are the y-values.
-let bug = new Enemy(50);
-let bug2 = new Enemy(220);
-let bug3 = new Enemy(135);
+let bug = new Enemy(-100, 50);
+let bug2 = new Enemy(-100, 220);
+let bug3 = new Enemy(-100, 135);
 let allEnemies = [bug, bug2, bug3];
-// allEnemies.push(bug);
-// allEnemies.push(bug2);
-// allEnemies.push(bug3);
-
 
 let player = new Player();
-// Now instantiate your objects.
-// Place all enemy objects in an array called allEnemies
-// Place the player object in a variable called player
+
+let gameStats = {
+    init: function() {
+            this.winView = document.querySelector('#win-count');
+            this.points = document.querySelector('#points');
+            this.restartBttn = document.querySelector('#restart-button');
+
+            this.restartBttn.addEventListener('click', function(){
+                document.location.href = '';
+            })
+    },
+
+    updateWin: function(wins) {
+        this.winView.textContent = "Wins: " + wins;
+    },
+
+    updatePointsView: function(playerPoints) {
+        this.points.textContent = `Points: ${playerPoints}`;
+    }
 
 
+};
 
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
+gameStats.init();
+
+//EVENTS
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
         37: 'left',

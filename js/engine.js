@@ -1,6 +1,6 @@
 /* Engine.js
- * This file provides the game loop functionality (update entities and render),
- * draws the initial game board on the screen, and then calls the update and
+ * This file provides the game loop functionality (updatePosition entities and render),
+ * draws the initial game board on the screen, and then calls the updatePosition and
  * render methods on your player and enemy objects (defined in your app.js).
  *
  * A game engine works by drawing the entire game screen over and over, kind of
@@ -15,24 +15,26 @@
 
 
 
-var Engine = (function(global) {
+
+let Engine = (function (global) {
     /* Predefine the variables we'll be using within this scope,
      * create the canvas element, grab the 2D context for that canvas
      * set the canvas elements height/width and add it to the DOM.
      */
 
-    var doc = global.document,
+    const doc = global.document,
         win = global.window,
         canvas = doc.createElement('canvas'),
-        ctx = canvas.getContext('2d'),
-        lastTime;
+        ctx = canvas.getContext('2d');
+    let lastTime;
 
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
 
+
     /* This function serves as the kickoff point for the game loop itself
-     * and handles properly calling the update and render methods.
+     * and handles properly calling the updatePosition and render methods.
      */
     function main() {
         /* Get our time delta information which is required if your game
@@ -42,12 +44,12 @@ var Engine = (function(global) {
          * computer is) - hurray time!
          */
         var now = Date.now(),
-            dt = (now - lastTime) / 1000.0;
+            frameSpeed = (now - lastTime) / 1000.0;
 
-        /* Call our update/render functions, pass along the time delta to
-         * our update function since it may be used for smooth animation.
+        /* Call our updatePosition/render functions, pass along the time delta to
+         * our updatePosition function since it may be used for smooth animation.
          */
-        update(dt);
+        update(frameSpeed);
         render();
 
         /* Set our lastTime variable which is used to determine the time delta
@@ -72,7 +74,7 @@ var Engine = (function(global) {
     }
 
     /* This function is called by main (our game loop) and itself calls all
-     * of the functions which may need to update entity's data. Based on how
+     * of the functions which may need to updatePosition entity's data. Based on how
      * you implement your collision detection (when two entities occupy the
      * same space, for instance when your character should die), you may find
      * the need to add an additional function call here. For now, we've left
@@ -85,23 +87,24 @@ var Engine = (function(global) {
         // checkCollisions();
     }
 
-    /* This is called by the update function and loops through all of the
+    /* This is called by the updatePosition function and loops through all of the
      * objects within your allEnemies array as defined in app.js and calls
-     * their update() methods. It will then call the update function for your
-     * player object. These update methods should focus purely on updating
+     * their updatePosition() methods. It will then call the updatePosition function for your
+     * player object. These updatePosition methods should focus purely on updating
      * the data/properties related to the object. Do your drawing in your
      * render methods.
      */
     function updateEntities(dt) {
-        allEnemies.forEach(function(enemy) {
-            enemy.update(dt);
+        allEnemies.forEach(function (enemy) {
+            enemy.updatePosition(dt);
         });
 
         // This validates if the player has reached the waterTile. If true, calls startPos();
-        if( player.update() === waterTile) {
-          setTimeout( function() {
+        if (player.update() === waterTile) {
+            /*setTimeout(function () {
+                player.startPos();
+            }, 10);*/
             player.startPos();
-          }, 100);
         }
     }
 
@@ -129,7 +132,7 @@ var Engine = (function(global) {
             row, col;
 
         // Before drawing, clear existing canvas
-        ctx.clearRect(0,0,canvas.width,canvas.height)
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         /* Loop through the number of rows and columns we've defined above
          * and, using the rowImages array, draw the correct image for that
@@ -159,7 +162,7 @@ var Engine = (function(global) {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */
-        allEnemies.forEach(function(enemy) {
+        allEnemies.forEach(function (enemy) {
             enemy.render();
         });
 

@@ -19,6 +19,7 @@
              * loop through each value and call our image
              * loader on that image file
              */
+
             urlOrArr.forEach(function(url) {
                 _load(url);
             });
