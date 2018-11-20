@@ -4,11 +4,16 @@ const upBorder = 50;
 const downBorder = 390;
 const bugSpeeds = [200, 300, 400, 500];
 const waterTile = -35;
+const gemCoordinates = [[28, 128, 228, 328, 428],[113, 198, 283, 368]];
 
-/*TODO: Add Html for number of wins, name of the game, points
+/*
+TODO: Make other color gems
+TODO: randomize spawn point
+TODO: program point when gem is touched
 TODO: Implement gems and points
-TODO: Implement character choosing
-TODO: Add extra tile for enemies
+TODO: Implement life system
+TODO: Implement game over screen
+TODO: Add extra tile for enemies (Not priority)
 TODO: Check other files for cleaning
 * */
 
@@ -58,10 +63,10 @@ class Enemy extends Entity {
       }
     }
 
-    respawn() {
-      this.x = -50;
-      this.speed = bugSpeeds [ Math.round( Math.random() * (bugSpeeds.length - 1) ) ];
-    }
+  respawn() {
+    this.x = -50;
+    this.speed = bugSpeeds [ Math.round( Math.random() * (bugSpeeds.length - 1) ) ];
+  }
 
 }
 
@@ -117,11 +122,50 @@ class Player extends Entity {
       this.updatePoints();
   }
 
-  updatePoints() {
-      this.points += 10;
+  updatePoints(points = 100) {
+      this.points += points;
       gameStats.updatePointsView(this.points);
   }
 }
+
+class Gem extends Entity {
+    constructor(x = 0, y = 0, sprite, gemColor, width, height, points){
+        super(x, y, sprite);
+        this.gemColor = gemColor;
+        this.width = width;
+        this.height = height;
+        this.points = points;
+
+    }
+
+    renderGem() {
+        ctx.drawImage(Resources.get(this.sprite), this.x, this.y, this.width, this.height);
+    }
+
+    checkPickUp() {
+        let [player_xPos, player_yPos] = player.playerCoordinates();
+        const hitBoxHeight = 63;
+        const hitBoxWidth = 28;
+        if ((this.y - player_yPos) == hitBoxHeight && ((this.x - player_xPos) == hitBoxWidth))
+        {
+            this.respawn();
+            player.updatePoints(this.points);
+        }
+    }
+
+    respawn() {
+        this.x = gemCoordinates[0][ Math.round( Math.random() * (gemCoordinates[0].length - 1) ) ];
+        this.y = gemCoordinates[1][ Math.round( Math.random() * (gemCoordinates[1].length - 1) ) ];
+    }
+}
+
+let blueGem = new Gem(128, 113, 'images/Gem Blue.png', 'blue', 47, 80, 10);
+let orangeGem = new Gem(228, 113, 'images/Gem Orange.png', 'orange', 47, 80, 15);
+let greenGem = new Gem(228, 198, 'images/Gem Green.png', 'green', 47, 80, 20);
+let allGems = [blueGem, orangeGem, greenGem];
+//Estan a 100 cada x y cada y a 85.
+
+//63 es la diferencia entre enemigo y gema
 
 let bug = new Enemy(-100, 50);
 let bug2 = new Enemy(-100, 220);
@@ -148,8 +192,6 @@ let gameStats = {
     updatePointsView: function(playerPoints) {
         this.points.textContent = `Points: ${playerPoints}`;
     }
-
-
 };
 
 gameStats.init();
