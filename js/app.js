@@ -6,17 +6,6 @@ const bugSpeeds = [200, 300, 400, 500];
 const waterTile = -35;
 const gemCoordinates = [[28, 128, 228, 328, 428],[113, 198, 283, 368]];
 
-/*
-TODO: Make other color gems
-TODO: randomize spawn point
-TODO: program point when gem is touched
-TODO: Implement gems and points
-TODO: Implement life system
-TODO: Implement game over screen
-TODO: Add extra tile for enemies (Not priority)
-TODO: Check other files for cleaning
-* */
-
 class Entity {
   constructor(x = 0, y = 0, sprite = null) {
     this.x = x;
@@ -75,6 +64,7 @@ class Player extends Entity {
     super(x, y, sprite);
     this.winCount = 0;
     this.points = 0;
+    this.lives = 3;
   }
 
   update( movX = 0, movY = 0) {
@@ -86,6 +76,12 @@ class Player extends Entity {
   death() {
     this.x = 200;
     this.y = 390;
+    let self = this;
+    setTimeout(function(){
+       self.lives -= 0.5;
+       gameStats.updateLives(self.lives);
+    }, 200);
+
   };
 
   startPos() {
@@ -163,9 +159,6 @@ let blueGem = new Gem(128, 113, 'images/Gem Blue.png', 'blue', 47, 80, 10);
 let orangeGem = new Gem(228, 113, 'images/Gem Orange.png', 'orange', 47, 80, 15);
 let greenGem = new Gem(228, 198, 'images/Gem Green.png', 'green', 47, 80, 20);
 let allGems = [blueGem, orangeGem, greenGem];
-//Estan a 100 cada x y cada y a 85.
-
-//63 es la diferencia entre enemigo y gema
 
 let bug = new Enemy(-100, 50);
 let bug2 = new Enemy(-100, 220);
@@ -179,6 +172,7 @@ let gameStats = {
             this.winView = document.querySelector('#win-count');
             this.points = document.querySelector('#points');
             this.restartBttn = document.querySelector('#restart-button');
+            this.livesCounter = document.querySelector('#lives-count');
 
             this.restartBttn.addEventListener('click', function(){
                 document.location.href = '';
@@ -191,6 +185,10 @@ let gameStats = {
 
     updatePointsView: function(playerPoints) {
         this.points.textContent = `Points: ${playerPoints}`;
+    },
+
+    updateLives: function(lives) {
+        this.livesCounter.textContent = `Lives: ${lives}`;
     }
 };
 
