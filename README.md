@@ -10,9 +10,10 @@
 The Arcade Game Project is an online Game where the objective is for the player
 to reach the water tiles while avoiding the bugs.
 
-You can use the arrows on the keyboard to move the player.
+You can use the arrows on the keyboard to move the player. You collect points by getting to 
+the water tiles or collecting gems.
 
-If you're hit by a bug, you return to the initial position.
+If you're hit by a bug, you return to the initial position. When you lose 3 lives, you lose.
 
 No installation is required. The game can be played in a web browser.
 
@@ -28,4 +29,6 @@ in case a different sprite is used in the future.
     engine.js: Contains the main engine for the game. Updates entities and render them.
     resources.js: This loads all the images used in the game.
 
+    **engine.js and resources.js were provided by Udacity
+    
 index.html is the main html page.
